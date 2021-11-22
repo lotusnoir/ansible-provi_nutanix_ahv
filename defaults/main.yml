@@ -1,14 +1,14 @@
 ---
-# VM details to create (the vm name is the inventory_hostname variable)
+# VM details to create
 #vm_configuration:
-#  - ip: '10.10.10.10'
+#  - name: "vmtocreate"
+#    ip: '10.10.10.10'
 #    subnet: "INFRA"
 #    cluster: "localisation"
 #    memory: 2
 #    sockets: 1
 #    cores: 1
 #    disk_size_GB: 10
-
 
 # Debug
 debug_exec: false
