@@ -1,0 +1,25 @@
+---
+# VM details to create (the vm name is the inventory_hostname variable)
+#vm_configuration:
+#  - ip: '10.10.10.10'
+#    subnet: "INFRA"
+#    cluster: "localisation"
+#    memory: 2
+#    sockets: 1
+#    cores: 1
+#    disk_size_GB: 10
+
+
+# Debug
+debug_exec: false
+
+# Nutanix Connections infos
+cluster_url: "nutanixhost:9440"
+nutanix_api_v2: "https://{{ cluster_url }}/api/nutanix/v2.0"
+nutanix_api_v3: "https://{{ cluster_url }}/api/nutanix/v3"
+prism_user: admin
+prism_password: "xxxxxxxxx"
+
+### VM Template settings
+nutanix_timezone: "Europe/Paris"
+nutanix_template: "debian10"

@@ -1,0 +1,38 @@
+---
+- name: Get all vms details
+  uri:
+    url: "{{ nutanix_api_v2 }}/vms/?include_vm_disk_config=true&include_vm_nic_config=true"
+    method: GET
+    headers:
+      Content-Type: application/json
+    validate_certs: no
+    body_format: json
+    force_basic_auth: yes
+    user: "{{ prism_user }}"
+    password: "{{ prism_password }}"
+    status_code: 200
+    return_content: yes
+  register: json_all_vms
+
+- name: Stash the vm UUIDs
+  set_fact:
+    vms_uuids: "{{ vms_uuids | default([]) + [ {'name': item.name, 'uuid': item.uuid } ] }}"
+  with_items: "{{ json_all_vms.json.entities }}"
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Debug | Print all vms uuids
+  debug:
+    var: vms_uuids
+  when: debug_exec
+
+- name: GET running vm UUID
+  set_fact:
+    vm_uuid: "{{ item['uuid'] }}"
+  when: "item['name'] == vm_name"
+  loop: "{{ vms_uuids }}"
+
+- name: Debug | Print running vm uuid
+  debug:
+    var: vm_uuid
+  when: debug_exec

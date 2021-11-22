@@ -1,0 +1,23 @@
+---
+- name: Resize disk size
+  uri:
+    url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}/disks/update"
+    method: PUT
+    body: >
+      {
+        "updateSpec":{
+          "vmDiskClone":{
+            "minimumSize":6442450944,
+            "vmDiskUuid":"12345abcd-12ef-34gh-5678-12345678abcd"
+          }
+        }
+      }
+    headers:
+      Content-Type: application/json
+    validate_certs: 'no'
+    body_format: json
+    force_basic_auth: 'yes'
+    user: "{{ prism_user }}"
+    password: "{{ prism_password }}"
+    status_code: 200
+    changed_when: true

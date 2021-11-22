@@ -1,0 +1,25 @@
+---
+- name: Resize vm specs memory/cores/sockets
+  uri:
+    url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}"
+    method: PUT
+    body: >
+      {
+      "memory_mb": {{ vm_cfg_memory }},
+      "num_vcpus": {{ vm_cfg_sockets }},
+      "num_cores_per_vcpu": {{ vm_cfg_cores }}
+      }
+    headers:
+      Content-Type: application/json
+    validate_certs: 'no'
+    body_format: json
+    force_basic_auth: 'yes'
+    user: "{{ prism_user }}"
+    password: "{{ prism_password }}"
+    status_code: 200
+    changed_when: true
+
+
+- name: take new memory in charge
+  command: 'for i in $(grep offline /sys/devices/system/memory/*/state|cut -d\: -f1); do sudo bash -c "echo online > $i"; done'
+  when: vm_memory != vm_cfg_memory

@@ -1,0 +1,90 @@
+---
+- name: Get VMs list
+  uri:
+    url: "{{ nutanix_api_v3 }}/vms/list"
+    body:
+      length: 300
+      offset: 0
+      filter: ""
+    method: POST
+    validate_certs: 'no'
+    body_format: json
+    status_code: 200
+    headers:
+      Cookie: "{{ session_cookie }}"
+  register: json_vms_result
+  ignore_errors: false
+
+#- name: Debug | Print VMs details
+#  debug:
+#    var: json_vms_result
+#  when: debug_exec
+
+- name: Stash the VM details
+  set_fact:
+    vm_details: "{{ json_vms_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid, sockets: spec.resources.num_sockets, cores: spec.resources.num_vcpus_per_socket, memory: spec.resources.memory_size_mib }') }}"
+
+- name: Debug | Print VM details
+  debug:
+    var: vm_details
+  when: debug_exec
+
+- name: Stash the vm disk details
+  set_fact:
+    vm_disk_full: "{{ vm_disk_full | default([]) + [ {'name': item.spec.name, 'disk': item.spec.resources.disk_list }] }}"
+  with_items: "{{ json_vms_result.json.entities }}"
+  loop_control:
+    label: "{{ item.spec.name }}"
+  when: "item.spec.name == inventory_hostname"
+
+- name: Debug | Print vm disk full
+  debug:
+    var: vm_disk_full
+  when: debug_exec
+
+- name: Stash the vm disk full to extract extra disk
+  set_fact:
+    vm_disk: "{{ vm_disk_full |  json_query('[*].disk[? device_properties.disk_address.device_index==`1`].disk_size_bytes | [0][0]') }}"
+    vm_disk_uuid: "{{ vm_disk_full |  json_query('[*].disk[? device_properties.disk_address.device_index==`1`].uuid | [0][0]') }}"
+
+- name: Debug | Print vm extra disk size
+  debug:
+    var: vm_disk
+  when: debug_exec
+
+- name: GET running vm details
+  set_fact:
+    vm_uuid: "{{ item['uuid'] }}"
+    vm_memory: "{{ item['memory'] }}"
+    vm_cores: "{{ item['cores'] }}"
+    vm_sockets: "{{ item['sockets'] }}"
+  when: "item['name'] == inventory_hostname"
+  loop: "{{ vm_details }}"
+
+- name: Debug | Print running vm details
+  debug:
+    msg:
+      - "vm_uuid: {{ vm_uuid }}"
+      - "vm_memory: {{ vm_memory }}"
+      - "vm_sockets: {{ vm_sockets }}"
+      - "vm_cores: {{ vm_cores }}"
+      - "vm_disk: {{ vm_disk }}"
+      - "vm_disk_uuid: {{ vm_disk_uuid }}"
+  when: debug_exec
+
+- name: GET configuration vm details
+  set_fact:
+    vm_cfg_memory: "{{ item.memory*1024 }}"
+    vm_cfg_sockets: "{{ item.sockets }}"
+    vm_cfg_cores: "{{ item.cores }}"
+  with_items:
+    - "{{ vm_configuration }}"
+
+- name: Debug | Print configuration vm details
+  debug:
+    msg:
+      - "vm_cfg_memory: {{ vm_cfg_memory }}"
+      - "vm_cfg_sockets: {{ vm_cfg_sockets }}"
+      - "vm_cfg_cores: {{ vm_cfg_cores }}"
+      - "vm_cfg_disk: {{ vm_cfg_disk }}"
+  when: debug_exec

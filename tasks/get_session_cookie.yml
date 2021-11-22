@@ -1,0 +1,39 @@
+---
+- name: Auth to the cluster
+  uri:
+    url: "{{ nutanix_api_v3 }}/clusters/list"
+    body:
+      kind: cluster
+      sort_order: ASCENDING
+      offset: 0
+      length: 10
+      sort_attribute: ''
+    method: POST
+    validate_certs: 'no'
+    force_basic_auth: 'yes'
+    body_format: json
+    user: "{{ prism_user }}"
+    password: "{{ prism_password }}"
+    status_code: 200
+    return_content: 'yes'
+  register: login
+  ignore_errors: true
+
+- name: Debug | Print Prism Cookie
+  debug:
+    var: login.set_cookie
+  when: debug_exec
+
+- name: Debug | Print Prism Username
+  debug:
+    var: prism_user
+  when: debug_exec
+
+- name: Debug | Print Prism Password
+  debug:
+    var: prism_password
+  when: debug_exec
+
+- name: Set fact for Session Cookie
+  set_fact:
+    session_cookie: "{{ login.set_cookie }}"

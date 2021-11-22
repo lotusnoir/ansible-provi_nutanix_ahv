@@ -1,0 +1,25 @@
+---
+- name: Get Subnet List
+  uri:
+    url: "{{ nutanix_api_v3 }}/subnets/list"
+    body:
+      length: 100
+      offset: 0
+      filter: ""
+    method: POST
+    validate_certs: 'no'
+    body_format: json
+    status_code: 200
+    headers:
+      Cookie: "{{ session_cookie }}"
+  register: json_subnet_result
+  ignore_errors: true
+
+- name: Stash the subnet UUIDs
+  set_fact:
+    subnet_uuids: "{{ json_subnet_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid}') }}"
+
+- name: Debug | Print Subnet name/UUIDs
+  debug:
+    var: subnet_uuids
+  when: debug_exec

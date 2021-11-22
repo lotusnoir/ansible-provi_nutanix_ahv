@@ -1,0 +1,32 @@
+api_version: '3.0'
+metadata:
+  kind: vm
+spec:
+  cluster_reference:
+    kind: cluster
+    uuid: {{ cluster_uuid }}
+  name: {{ inventory_hostname }}
+  resources:
+    disk_list:
+    - data_source_reference:
+        kind: image
+        uuid: {{ image_uuid }}
+    memory_size_mib: {{ vm.memory * 1024 }}
+    nic_list:
+    - ip_endpoint_list:
+      - ip: {{ vm.ip }}
+      subnet_reference:
+        kind: subnet
+        uuid: {{ subnet_uuid }}
+{% if vm.num_sockets is defined %}
+    num_sockets: {{ vm.sockets }}
+{% else %}
+    num_sockets: 1
+{% endif %}
+{% if vm.cores is defined %}
+    num_vcpus_per_socket: {{ vm.cores }}
+{% else %}
+    num_vcpus_per_socket: 1 
+{% endif %}
+    power_state: 'ON'
+    hardware_clock_timezone: "{{ nutanix_timezone }}"

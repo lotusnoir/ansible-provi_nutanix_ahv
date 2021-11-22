@@ -1,0 +1,25 @@
+---
+- name: Get Images list
+  uri:
+    url: "{{ nutanix_api_v3 }}/images/list"
+    body:
+      length: 100
+      offset: 0
+      filter: ""
+    method: POST
+    validate_certs: 'no'
+    body_format: json
+    status_code: 200
+    headers:
+      Cookie: "{{ session_cookie }}"
+  register: json_images_result
+  ignore_errors: true
+
+- name: Stash the image UUIDs
+  set_fact:
+    image_uuids: "{{ json_images_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid}') }}"
+
+- name: Debug | Print image name/UUIDs
+  debug:
+    var: image_uuids
+  when: debug_exec

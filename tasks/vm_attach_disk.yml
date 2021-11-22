@@ -1,0 +1,42 @@
+---
+- name: Set container uuid depending of location
+  set_fact:
+    container_uuid: "78b7b513-ee5a-4c92-aacc-1f2651d95ce6"
+  when: cluster_name == "NTNX-PA2-01"
+
+- name: Set container uuid depending of location
+  set_fact:
+    container_uuid: "7a295e80-9121-486e-8c09-315bdbe8f454"
+  when: cluster_name == "NTNX-ITX2-01"
+
+- name: Debug | Print facts container_uuid
+  debug:
+    var: container_uuid
+  when: debug_exec
+
+- name: Attach new disk to running vm
+  uri:
+    url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}/disks/attach"
+    method: POST
+    body: >
+      {
+      "vm_disks":[{
+          "is_cdrom":false,
+          "disk_address":{
+              "device_bus":"scsi","device_index":1
+          },
+          "vm_disk_create":{
+              "storage_container_uuid":"{{ container_uuid }}",
+              "size": {{ vm_cfg_disk }}
+          }
+        }]
+      }
+    headers:
+      Content-Type: application/json
+    validate_certs: 'no'
+    body_format: json
+    force_basic_auth: 'yes'
+    user: "{{ prism_user }}"
+    password: "{{ prism_password }}"
+    status_code: 201
+  changed_when: true
