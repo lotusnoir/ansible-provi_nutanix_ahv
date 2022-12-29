@@ -1,6 +1,6 @@
 ---
 - name: Get VMS list
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v3 }}/vms/list"
     body:
       kind: vm
@@ -18,28 +18,28 @@
   ignore_errors: true
 
 - name: Debug | Print VMs List
-  debug:
+  ansible.builtin.debug:
     var: vms_result
   when: debug_exec
 
 - name: Stash the VM UUIDs
-  set_fact:
+  ansible.builtin.set_fact:
     vms_uuids: "{{ vms_uuids|default([]) + [{'name': item.spec.name, 'uuid': item.metadata.uuid}] }}"
   with_items: "{{ vms_result.json.entities }}"
 
 - name: Debug | Print VMs UUIDs
-  debug:
+  ansible.builtin.debug:
     var: vms_uuids
   when: debug_exec
 
 - name: Add the list of vms to hosts
-  add_host:
+  ansible.builtin.add_host:
     name: "{{ item.name }}"
     groups: openshift
     uuid: "{{ item.uuid }}"
   with_items: "{{ vms_uuids }}"
 
 - name: Debug | Print hostvars
-  debug:
+  ansible.builtin.debug:
     var: hostvars
   when: debug_exec

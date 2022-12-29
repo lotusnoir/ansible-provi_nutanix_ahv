@@ -1,6 +1,6 @@
 ---
 - name: Auth to the cluster
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v3 }}/clusters/list"
     body:
       kind: cluster
@@ -20,20 +20,20 @@
   ignore_errors: true
 
 - name: Debug | Print Prism Cookie
-  debug:
+  ansible.builtin.debug:
     var: login.set_cookie
   when: debug_exec
 
 - name: Debug | Print Prism Username
-  debug:
+  ansible.builtin.debug:
     var: prism_user
   when: debug_exec
 
 - name: Debug | Print Prism Password
-  debug:
+  ansible.builtin.debug:
     var: prism_password
   when: debug_exec
 
 - name: Set fact for Session Cookie
-  set_fact:
+  ansible.builtin.set_fact:
     session_cookie: "{{ login.set_cookie }}"

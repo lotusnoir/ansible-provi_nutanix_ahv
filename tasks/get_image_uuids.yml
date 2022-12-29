@@ -1,6 +1,6 @@
 ---
 - name: Get Images list
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v3 }}/images/list"
     body:
       length: 100
@@ -16,10 +16,10 @@
   ignore_errors: true
 
 - name: Stash the image UUIDs
-  set_fact:
+  ansible.builtin.set_fact:
     image_uuids: "{{ json_images_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid}') }}"
 
 - name: Debug | Print image name/UUIDs
-  debug:
+  ansible.builtin.debug:
     var: image_uuids
   when: debug_exec

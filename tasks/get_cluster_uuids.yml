@@ -1,6 +1,6 @@
 ---
 - name: Get clusters list
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v3 }}/clusters/list"
     body:
       kind: cluster
@@ -18,10 +18,10 @@
   ignore_errors: true
 
 - name: Stash the Cluster UUIDs
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_uuids: "{{ json_clusters_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid}') }}"
 
 - name: Debug | Print cluster name/UUIDs
-  debug:
+  ansible.builtin.debug:
     var: cluster_uuids
   when: debug_exec

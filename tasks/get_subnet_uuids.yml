@@ -1,6 +1,6 @@
 ---
 - name: Get Subnet List
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v3 }}/subnets/list"
     body:
       length: 100
@@ -16,10 +16,10 @@
   ignore_errors: true
 
 - name: Stash the subnet UUIDs
-  set_fact:
+  ansible.builtin.set_fact:
     subnet_uuids: "{{ json_subnet_result | json_query('json.entities[*].{name: spec.name, uuid: metadata.uuid}') }}"
 
 - name: Debug | Print Subnet name/UUIDs
-  debug:
+  ansible.builtin.debug:
     var: subnet_uuids
   when: debug_exec

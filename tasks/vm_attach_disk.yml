@@ -1,21 +1,21 @@
 ---
 - name: Set container uuid depending of location
-  set_fact:
+  ansible.builtin.set_fact:
     container_uuid: "78b7b513-ee5a-4c92-aacc-1f2651d95ce6"
   when: cluster_name == "NTNX-PA2-01"
 
 - name: Set container uuid depending of location
-  set_fact:
+  ansible.builtin.set_fact:
     container_uuid: "7a295e80-9121-486e-8c09-315bdbe8f454"
   when: cluster_name == "NTNX-ITX2-01"
 
 - name: Debug | Print facts container_uuid
-  debug:
+  ansible.builtin.debug:
     var: container_uuid
   when: debug_exec
 
 - name: Attach new disk to running vm
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}/disks/attach"
     method: POST
     body: >

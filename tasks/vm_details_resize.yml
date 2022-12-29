@@ -1,6 +1,6 @@
 ---
 - name: Resize vm specs memory/cores/sockets
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}"
     method: PUT
     body: >
@@ -21,5 +21,5 @@
 
 
 - name: take new memory in charge
-  command: 'for i in $(grep offline /sys/devices/system/memory/*/state|cut -d\: -f1); do sudo bash -c "echo online > $i"; done'
+  ansible.builtin.command: 'for i in $(grep offline /sys/devices/system/memory/*/state|cut -d\: -f1); do sudo bash -c "echo online > $i"; done'
   when: vm_memory != vm_cfg_memory

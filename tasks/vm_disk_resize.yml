@@ -1,6 +1,6 @@
 ---
 - name: Resize disk size
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v2 }}/vms/{{ vm_uuid }}/disks/update"
     method: PUT
     body: >

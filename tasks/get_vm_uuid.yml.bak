@@ -1,6 +1,6 @@
 ---
 - name: Get all vms details
-  uri:
+  ansible.builtin.uri:
     url: "{{ nutanix_api_v2 }}/vms/?include_vm_disk_config=true&include_vm_nic_config=true"
     method: GET
     headers:
@@ -15,24 +15,24 @@
   register: json_all_vms
 
 - name: Stash the vm UUIDs
-  set_fact:
+  ansible.builtin.set_fact:
     vms_uuids: "{{ vms_uuids | default([]) + [ {'name': item.name, 'uuid': item.uuid } ] }}"
   with_items: "{{ json_all_vms.json.entities }}"
   loop_control:
     label: "{{ item.name }}"
 
 - name: Debug | Print all vms uuids
-  debug:
+  ansible.builtin.debug:
     var: vms_uuids
   when: debug_exec
 
 - name: GET running vm UUID
-  set_fact:
+  ansible.builtin.set_fact:
     vm_uuid: "{{ item['uuid'] }}"
   when: "item['name'] == vm_name"
   loop: "{{ vms_uuids }}"
 
 - name: Debug | Print running vm uuid
-  debug:
+  ansible.builtin.debug:
     var: vm_uuid
   when: debug_exec

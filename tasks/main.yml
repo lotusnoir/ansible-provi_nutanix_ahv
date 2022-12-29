@@ -1,6 +1,6 @@
 ---
 - name: Check if host already exist
-  command: ping -c1 -w2 {{ item.ip }}
+  ansible.builtin.command: ping -c1 -w2 {{ item.ip }}
   with_items: "{{ vm_configuration }}"
   delegate_to: localhost
   register: ping_result
@@ -9,39 +9,40 @@
   changed_when: false
 
 - name: Debug | Print ping command
-  debug:
+  ansible.builtin.debug:
     msg: "{{ ping_result }}"
   when: debug_exec
 
 - name: Set global facts from vm configuration
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_name: "NTNX-{{ item.cluster|upper }}-01"
     subnet_name: "{{ item.subnet }}"
   with_items:
     - "{{ vm_configuration }}"
 
 - name: Debug | Print facts
-  debug:
+  ansible.builtin.debug:
     msg:
       - 'subnet_name: {{ subnet_name }}'
       - 'cluster_name: {{ cluster_name }}'
   when: debug_exec
 
 - name: Set facts - disk size
-  set_fact:
+  ansible.builtin.set_fact:
     vm_cfg_disk: '{{ item.disk_size_GB*1024*1024*1024 | int | default(omit) }}'
   with_items:
     - "{{ vm_configuration }}"
   when: item.disk_size_GB is defined
 
 - name: Debug | Print disk size in bytes
-  debug:
+  ansible.builtin.debug:
     var: vm_cfg_disk
   when:
     - vm_cfg_disk is defined
     - debug_exec
 
-- when: ping_result is failed
+- name: When vm doesnt exist we create it
+  when: ping_result is failed
   block:
     - import_tasks: get_session_cookie.yml
     - import_tasks: get_cluster_uuids.yml
@@ -51,7 +52,7 @@
     - import_tasks: provision_vm.yml
 
     - name: Pause for 20 seconds to build vm
-      pause:
+      ansible.builtin.pause:
         seconds: 20
         echo: "no"
       when: vm_cfg_disk is defined
@@ -59,7 +60,8 @@
     - import_tasks: vm_attach_disk.yml
       when: vm_cfg_disk is defined
 
-- when: ping_result is succeeded
+- name: When vm exist we configure it
+  when: ping_result is succeeded
   block:
     - import_tasks: get_session_cookie.yml
     - import_tasks: get_vm_details.yml

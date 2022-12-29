@@ -1,18 +1,18 @@
 ---
 - name: Define Cluster UUID to use from name
-  set_fact:
+  ansible.builtin.set_fact:
     cluster_uuid: "{{ item['uuid'] }}"
   when: "item['name'] == cluster_name"
   loop: "{{ cluster_uuids }}"
 
 - name: Define Image UUID to use from name
-  set_fact:
+  ansible.builtin.set_fact:
     image_uuid: "{{ item['uuid'] }}"
   when: "item['name'] == nutanix_template"
   loop: "{{ image_uuids }}"
 
 - name: Define Subnet UUID to use from name
-  set_fact:
+  ansible.builtin.set_fact:
     subnet_uuid: "{{ item['uuid'] }}"
   when: "item['name'] == subnet_name"
   loop: "{{ subnet_uuids }}"
