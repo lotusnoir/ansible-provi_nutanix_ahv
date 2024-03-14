@@ -31,7 +31,7 @@
 
 - name: Stash the vm disk details
   ansible.builtin.set_fact:
-    vm_disk_full: "{{ vm_disk_full | default([]) + [ {'name': item.spec.name, 'disk': item.spec.resources.disk_list }] }}"
+    vm_disk_full: "{{ vm_disk_full | default([]) + [ {'name': item.spec.name, 'disk': item.spec.resources.disk_list}] }}"
   with_items: "{{ json_vms_result.json.entities }}"
   loop_control:
     label: "{{ item.spec.name }}"
@@ -44,8 +44,8 @@
 
 - name: Stash the vm disk full to extract extra disk
   ansible.builtin.set_fact:
-    vm_disk: "{{ vm_disk_full |  json_query('[*].disk[? device_properties.disk_address.device_index==`1`].disk_size_bytes | [0][0]') }}"
-    vm_disk_uuid: "{{ vm_disk_full |  json_query('[*].disk[? device_properties.disk_address.device_index==`1`].uuid | [0][0]') }}"
+    vm_disk: "{{ vm_disk_full | json_query('[*].disk[? device_properties.disk_address.device_index==`1`].disk_size_bytes | [0][0]') }}"
+    vm_disk_uuid: "{{ vm_disk_full | json_query('[*].disk[? device_properties.disk_address.device_index==`1`].uuid | [0][0]') }}"
 
 - name: Debug | Print vm extra disk size
   ansible.builtin.debug:
@@ -74,7 +74,7 @@
 
 - name: GET configuration vm details
   ansible.builtin.set_fact:
-    vm_cfg_memory: "{{ item.memory*1024 }}"
+    vm_cfg_memory: "{{ item.memory * 1024 }}"
     vm_cfg_sockets: "{{ item.sockets }}"
     vm_cfg_cores: "{{ item.cores }}"
   with_items:

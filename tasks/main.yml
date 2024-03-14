@@ -5,7 +5,6 @@
   delegate_to: localhost
   register: ping_result
   ignore_errors: true
-  #failed_when: false
   changed_when: false
 
 - name: Debug | Print ping command
@@ -15,7 +14,7 @@
 
 - name: Set global facts from vm configuration
   ansible.builtin.set_fact:
-    cluster_name: "NTNX-{{ item.cluster|upper }}-01"
+    cluster_name: "NTNX-{{ item.cluster | upper }}-01"
     subnet_name: "{{ item.subnet }}"
   with_items:
     - "{{ vm_configuration }}"
@@ -29,7 +28,7 @@
 
 - name: Set facts - disk size
   ansible.builtin.set_fact:
-    vm_cfg_disk: '{{ item.disk_size_GB*1024*1024*1024 | int | default(omit) }}'
+    vm_cfg_disk: '{{ item.disk_size_GB * 1024 * 1024 * 1024 | int | default(omit) }}'
   with_items:
     - "{{ vm_configuration }}"
   when: item.disk_size_GB is defined
@@ -44,12 +43,23 @@
 - name: When vm doesnt exist we create it
   when: ping_result is failed
   block:
-    - import_tasks: get_session_cookie.yml
-    - import_tasks: get_cluster_uuids.yml
-    - import_tasks: get_subnet_uuids.yml
-    - import_tasks: get_image_uuids.yml
-    - import_tasks: define_uuids_from_names.yml
-    - import_tasks: provision_vm.yml
+    - name: Get session cookie
+      ansible.builtin.import_tasks: get_session_cookie.yml
+
+    - name: Get cluster uuids
+      ansible.builtin.import_tasks: get_cluster_uuids.yml
+
+    - name: Get subnet uuids
+      ansible.builtin.import_tasks: get_subnet_uuids.yml
+
+    - name: Get image uuids
+      ansible.builtin.import_tasks: get_image_uuids.yml
+
+    - name: Define uuids from names
+      ansible.builtin.import_tasks: define_uuids_from_names.yml
+
+    - name: Provisionning vm
+      ansible.builtin.import_tasks: provision_vm.yml
 
     - name: Pause for 20 seconds to build vm
       ansible.builtin.pause:
@@ -57,17 +67,25 @@
         echo: "no"
       when: vm_cfg_disk is defined
 
-    - import_tasks: vm_attach_disk.yml
+    - name: Attach disk
+      ansible.builtin.import_tasks: vm_attach_disk.yml
       when: vm_cfg_disk is defined
 
 - name: When vm exist we configure it
   when: ping_result is succeeded
   block:
-    - import_tasks: get_session_cookie.yml
-    - import_tasks: get_vm_details.yml
-    - import_tasks: vm_details_resize.yml
+    - name: Get session cookie
+      ansible.builtin.import_tasks: get_session_cookie.yml
+
+    - name: Get vm details
+      ansible.builtin.import_tasks: get_vm_details.yml
+
+    - name: Resize vm ressources
+      ansible.builtin.import_tasks: vm_details_resize.yml
       when: (vm_memory != vm_cfg_memory) or (vm_sockets != vm_cfg_sockets) or (vm_cores != vm_cfg_cores)
-    - import_tasks: vm_attach_disk.yml
+
+    - name: Attach Disk
+      ansible.builtin.mport_tasks: vm_attach_disk.yml
       when:
         - vm_cfg_disk is defined
         - vm_disk == ""

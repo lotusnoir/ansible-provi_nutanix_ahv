@@ -24,7 +24,7 @@
 
 - name: Stash the VM UUIDs
   ansible.builtin.set_fact:
-    vms_uuids: "{{ vms_uuids|default([]) + [{'name': item.spec.name, 'uuid': item.metadata.uuid}] }}"
+    vms_uuids: "{{ vms_uuids | default([]) + [{'name': item.spec.name, 'uuid': item.metadata.uuid}] }}"
   with_items: "{{ vms_result.json.entities }}"
 
 - name: Debug | Print VMs UUIDs

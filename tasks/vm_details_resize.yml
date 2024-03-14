@@ -17,9 +17,10 @@
     user: "{{ prism_user }}"
     password: "{{ prism_password }}"
     status_code: 200
-    changed_when: true
+  changed_when: true
 
 
-- name: take new memory in charge
+- name: Take new memory in charge
   ansible.builtin.command: 'for i in $(grep offline /sys/devices/system/memory/*/state|cut -d\: -f1); do sudo bash -c "echo online > $i"; done'
+  changed_when: true
   when: vm_memory != vm_cfg_memory

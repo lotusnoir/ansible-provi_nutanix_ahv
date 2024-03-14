@@ -20,4 +20,4 @@
     user: "{{ prism_user }}"
     password: "{{ prism_password }}"
     status_code: 200
-    changed_when: true
+  changed_when: true
